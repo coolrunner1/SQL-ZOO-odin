@@ -23,17 +23,22 @@ FROM game
 JOIN goal ON (id=matchid)
 WHERE player LIKE 'Mario%'
 
-/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+#5. Show player, teamid, coach, gtime for all goals scored in the first 10 minutes gtime<=10
 
-#5. Find the countries that start with C and end with ia
+SELECT player, teamid, coach, gtime
+  FROM goal
+JOIN eteam ON (teamid=id)
+ WHERE gtime<=10
 
-SELECT name FROM world
-  WHERE name LIKE 'C%' AND name LIKE "%ia"
+#6. List the dates of the matches and the name of the team in which 'Fernando Santos' was the team1 coach.
 
-#6. Find the country that has oo in the name
+SELECT mdate, teamname
+FROM game
+JOIN goal ON (game.id=matchid)
+JOIN eteam ON (teamid=eteam.id)
+WHERE team1=teamid AND coach='Fernando Santos'
 
-SELECT name FROM world
-  WHERE name LIKE '%oo%'
+/**/
 
 #7. Find the countries that have three or more a in the name
 
