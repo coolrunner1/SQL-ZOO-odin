@@ -1,22 +1,19 @@
-#1. Modify it to show the matchid and player name for all goals scored by Germany.
+#2. Give year of 'Citizen Kane'.
 
-SELECT matchid, player FROM goal
-  WHERE teamid='GER'
+SELECT yr
+FROM movie
+WHERE title='Citizen Kane'
 
+#3. List all of the Star Trek movies, include the id, title and yr (all of these movies include the words Star Trek in the title). Order results by year.
 
-#2. Show id, stadium, team1, team2 for just game 1012
+SELECT id, title, yr
+FROM movie
+WHERE title LIKE "Star Trek%"
+ORDER BY yr
 
-SELECT id,stadium,team1,team2
-  FROM game
-WHERE id=1012
+#4. What id number does the actor 'Glenn Close' have?
 
-#3. Modify it to show the player, teamid, stadium and mdate for every German goal.
-
-SELECT player, teamid, stadium, mdate
-  FROM game JOIN goal ON (id=matchid)
-WHERE teamid="GER"
-
-#4. Show the team1, team2 and player for every goal scored by a player called Mario player LIKE 'Mario%'
+/**/
 
 SELECT team1, team2, player
 FROM game
@@ -90,3 +87,17 @@ SELECT mdate,
   FROM game LEFT JOIN goal ON matchid = id
 GROUP BY mdate, matchid, team1, team2
 ORDER BY mdate, matchid, team1, team2
+
+
+#14. Find the capital and the name where the capital is an extension of name of the country.
+
+SELECT capital, name
+  FROM world
+WHERE capital LIKE concat(name, "_%")
+
+#15. Show the name and the extension where the capital is a proper (non-empty) extension of name of the country.
+
+SELECT name, REPLACE (capital, name, '')
+  FROM world
+WHERE capital LIKE concat(name, "_%")
+
