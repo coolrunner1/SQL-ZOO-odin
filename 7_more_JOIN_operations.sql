@@ -13,91 +13,100 @@ ORDER BY yr
 
 #4. What id number does the actor 'Glenn Close' have?
 
-/**/
+SELECT id
+FROM actor
+WHERE name = 'Glenn Close'
 
-SELECT team1, team2, player
-FROM game
-JOIN goal ON (id=matchid)
-WHERE player LIKE 'Mario%'
+#5. What is the id of the film 'Casablanca'
 
-#5. Show player, teamid, coach, gtime for all goals scored in the first 10 minutes gtime<=10
+SELECT id
+FROM movie
+WHERE title = 'Casablanca'
 
-SELECT player, teamid, coach, gtime
-  FROM goal
-JOIN eteam ON (teamid=id)
- WHERE gtime<=10
+#6. Obtain the cast list for 'Casablanca'.
 
-#6. List the dates of the matches and the name of the team in which 'Fernando Santos' was the team1 coach.
+SELECT name
+FROM actor
+JOIN casting ON actor.id=actorid
+JOIN movie ON movieid=movie.id
+WHERE movieid=11768
 
-SELECT mdate, teamname
-FROM game
-JOIN goal ON (game.id=matchid)
-JOIN eteam ON (teamid=eteam.id)
-WHERE team1=teamid AND coach='Fernando Santos'
+#7. Obtain the cast list for the film 'Alien'
 
-#7. List the player for every goal scored in a game where the stadium was 'National Stadium, Warsaw'
+SELECT name
+FROM actor
+JOIN casting ON actor.id=actorid
+JOIN movie ON movieid=movie.id
+WHERE movie.title='Alien'
 
-SELECT player
-FROM goal
-JOIN game ON (id=matchid)
-WHERE stadium='National Stadium, Warsaw'
+#8. List the films in which 'Harrison Ford' has appeared
 
-#8. Instead show the name of all players who scored a goal against Germany.
+SELECT title
+FROM movie
+JOIN casting ON movie.id=movieid
+JOIN actor ON actorid=actor.id
+WHERE actor.name='Harrison Ford'
 
-SELECT DISTINCT player
-  FROM goal JOIN game ON id = matchid
-    WHERE (team1='GER' OR team2='GER') AND goal.teamid<>'GER'
+#9. List the films where 'Harrison Ford' has appeared - but not in the starring role
 
-#9. Show teamname and the total number of goals scored.
+SELECT title
+FROM movie
+JOIN casting ON movie.id=movieid
+JOIN actor ON actorid=actor.id
+WHERE actor.name='Harrison Ford'
+AND casting.ord!=1
 
-SELECT teamname, COUNT(*)
-  FROM goal JOIN eteam ON teamid=id
-GROUP BY teamid
- ORDER BY teamname
+#10. List the films together with the leading star for all 1962 films.
 
+SELECT movie.title, actor.name
+FROM movie
+JOIN casting ON movie.id=movieid
+JOIN actor ON actorid=actor.id
+WHERE ord=1 AND yr=1962
 
-#10. Show the stadium and the number of goals scored in each stadium.
+#11. Which were the busiest years for 'Rock Hudson', show the year and the number of movies he made each year for any year in which he made more than 2 movies. 
 
-SELECT stadium, COUNT(*)
-  FROM goal JOIN game ON matchid=id
-GROUP BY stadium
+SELECT yr,COUNT(title) AS movies FROM
+  movie JOIN casting ON movie.id=movieid
+        JOIN actor   ON actorid=actor.id
+WHERE name= 'Rock Hudson'
+GROUP BY yr
+HAVING COUNT(title) > 2
 
-#11. For every match involving 'POL', show the matchid, date and the number of goals scored.
+#12. List the film title and the leading actor for all of the films 'Julie Andrews' played in.
 
-SELECT matchid, mdate, COUNT(*)
-  FROM game JOIN goal ON matchid = id
- WHERE (team1 = 'POL' OR team2 = 'POL')
-GROUP BY matchid
+SELECT title, name FROM movie
+JOIN casting ON movie.id=movieid
+JOIN actor ON actorid=actor.id
+WHERE movieid IN (
+  SELECT movieid FROM casting
+  JOIN actor ON actorid=actor.id
+  WHERE name='Julie Andrews') AND ord=1
 
-#12. For every match where 'GER' scored, show matchid, match date and the number of goals scored by 'GER'
+#13. Obtain a list, in alphabetical order, of actors who've had at least 15 starring roles.
 
-SELECT matchid, mdate, COUNT(*)
-FROM game
-JOIN goal ON matchid=id
-WHERE teamid='GER'
-GROUP BY matchid
+SELECT DISTINCT name FROM actor
+JOIN casting ON actor.id=actorid
+WHERE (
+    SELECT COUNT(*) FROM casting
+    WHERE ord=1 AND actorid=actor.id)>=15
+ORDER BY name
 
-#13. List every match with the goals scored by each team as shown. This will use "CASE WHEN" which has not been explained in any previous exercises.
+#14. List the films released in the year 1978 ordered by the number of actors in the cast, then by title.
 
-SELECT mdate,
-  team1,
-  SUM(CASE WHEN teamid=team1 THEN 1 ELSE 0 END) score1,
-  team2,
-  SUM(CASE WHEN teamid=team2 THEN 1 ELSE 0 END) score2
-  FROM game LEFT JOIN goal ON matchid = id
-GROUP BY mdate, matchid, team1, team2
-ORDER BY mdate, matchid, team1, team2
+SELECT title, COUNT(actorid) FROM movie
+JOIN casting ON movie.id=movieid
+WHERE yr=1978
+GROUP BY title
+ORDER BY COUNT(actorid) DESC, title
 
+#15. List all the people who have worked with 'Art Garfunkel'.
 
-#14. Find the capital and the name where the capital is an extension of name of the country.
-
-SELECT capital, name
-  FROM world
-WHERE capital LIKE concat(name, "_%")
-
-#15. Show the name and the extension where the capital is a proper (non-empty) extension of name of the country.
-
-SELECT name, REPLACE (capital, name, '')
-  FROM world
-WHERE capital LIKE concat(name, "_%")
-
+SELECT DISTINCT name FROM actor
+JOIN casting ON actor.id=actorid
+WHERE name IN (SELECT name FROM actor
+           JOIN casting ON actor.id=actorid
+           WHERE movieid IN (SELECT movie.id FROM movie
+                 JOIN casting ON movie.id=movieid
+                 JOIN actor ON actorid=actor.id
+                 WHERE name='Art Garfunkel') and name!='Art Garfunkel')
