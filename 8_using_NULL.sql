@@ -22,43 +22,36 @@ SELECT name, COALESCE(mobile, '07986 444 2266') FROM teacher
 
 #6. Use the COALESCE function and a LEFT JOIN to print the teacher name and department name. Use the string 'None' where there is no department. 
 
-/**/
+SELECT teacher.name, COALESCE(dept.name, "None")
+FROM teacher
+LEFT JOIN dept ON teacher.dept=dept.id
 
-SELECT name
-FROM actor
-JOIN casting ON actor.id=actorid
-JOIN movie ON movieid=movie.id
-WHERE movieid=11768
+#7. Use COUNT to show the number of teachers and the number of mobile phones
 
-#7. Obtain the cast list for the film 'Alien'
+SELECT COUNT(name) Teachers, COUNT(mobile) Phones FROM teacher
 
-SELECT name
-FROM actor
-JOIN casting ON actor.id=actorid
-JOIN movie ON movieid=movie.id
-WHERE movie.title='Alien'
+#8. Use COUNT and GROUP BY dept.name to show each department and the number of staff. Use a RIGHT JOIN to ensure that the Engineering department is listed. 
 
-#8. List the films in which 'Harrison Ford' has appeared
+SELECT dept.name, COALESCE(COUNT(teacher.name), 0)
+FROM teacher
+RIGHT JOIN dept ON teacher.dept=dept.id
+GROUP BY dept.name
 
-SELECT title
-FROM movie
-JOIN casting ON movie.id=movieid
-JOIN actor ON actorid=actor.id
-WHERE actor.name='Harrison Ford'
+#9. Use CASE to show the name of each teacher followed by 'Sci' if the teacher is in dept 1 or 2 and 'Art' otherwise. 
 
-#9. List the films where 'Harrison Ford' has appeared - but not in the starring role
+SELECT name,
+CASE
+    WHEN dept IN (1,2) THEN "Sci"
+    ELSE "Art"
+END AS Division
+FROM teacher
 
-SELECT title
-FROM movie
-JOIN casting ON movie.id=movieid
-JOIN actor ON actorid=actor.id
-WHERE actor.name='Harrison Ford'
-AND casting.ord!=1
+#10. Use CASE to show the name of each teacher followed by 'Sci' if the teacher is in dept 1 or 2, show 'Art' if the teacher's dept is 3 and 'None' otherwise. 
 
-#10. List the films together with the leading star for all 1962 films.
-
-SELECT movie.title, actor.name
-FROM movie
-JOIN casting ON movie.id=movieid
-JOIN actor ON actorid=actor.id
-WHERE ord=1 AND yr=1962
+SELECT name,
+CASE
+    WHEN dept IN (1,2) THEN "Sci"
+    WHEN dept=3 THEN "Art"
+    ELSE "None"
+END AS Division
+FROM teacher
